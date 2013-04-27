@@ -22,7 +22,7 @@ cat ~/junk/bbcnews.html | ./scrape --f ".//a[@class='headline-anchor']" | less
 from lxml import etree
 import sys
 import argparse
-
+import traceback
 
 def getcommandlineargs():
     pp = argparse.ArgumentParser(description='Simple HTML scraper utility')
@@ -57,8 +57,6 @@ def checkqueriesarevalid(queries,tree):
 
 def getresults(args,tree):
     results=[]
-    if args['trim']:
-        trimmer=args.trim
     for query in args.f:
         allmatching= tree.xpath(query)
         result=[]
@@ -111,4 +109,5 @@ if __name__ == "__main__":
                 
     except Exception as ex:
         print ex
+        traceback.print_exc(file=sys.stdout)
         sys.exit(-1)
