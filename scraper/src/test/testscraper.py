@@ -98,6 +98,16 @@ class Test(unittest.TestCase):
         p = lowercase()
         assert p.process("HellO WORLd!")=="hello world!"
 
+    def testPostProcessorExample(self):
+        fi = open("./bbcnews.html")
+        patterns = ["//a","//h1"]
+        scr = scraper("test",patterns,self.parser,[lowercase()])
+        results = scr.parse(fi)
+        for y in range(0,len(patterns)):
+            for x in results[y]:
+                assert x==x.lower()
+        fi.close()
+        
     
 if __name__ == "__main__":
     unittest.main()

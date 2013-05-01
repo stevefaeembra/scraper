@@ -28,7 +28,6 @@ class trimwhitespace(postprocessor):
         s = s.replace("\r\n","\n")
         s = s.replace("\n","")
         s = re.sub("\s{2,}", " ", s)
-        print ">>>>[%s]" % s
         return s
 
 class lowercase(postprocessor):
