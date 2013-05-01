@@ -61,6 +61,33 @@ class Test(unittest.TestCase):
         results = scr.parse(fi)
         fi.close()
         assert len(results[0])==161
+        
+    def testPaddingListsToEqualLengthOneList(self):
+        patterns = ["//a"]
+        scr = scraper("test",patterns,self.parser)
+        testlist=[["a","b","c"]]
+        result=scr._padListsToEqualLength(testlist)
+        assert result==testlist
+
+    def testPaddingListsToEqualLengthMoreThanOneList(self):
+        patterns = ["//a"]
+        scr = scraper("test",patterns,self.parser)
+        testlist=[["a","b","c"],["e"],["f","g","h","i"]]
+        expect=[["a","b","c","-"],["e","-","-","-"],["f","g","h","i"]]
+        result=scr._padListsToEqualLength(testlist)
+        assert result==expect
+        
+    def testPaddingListsToEqualLength(self):
+        fi = open("./bbcnews.html")
+        patterns = ["//a","//h1"]
+        scr = scraper("test",patterns,self.parser)
+        results = scr.parse(fi)
+        fi.close()
+        print results[0]
+        print results[1]
+        assert len(results[0])==161
+        assert len(results[1])==161
+    
     
 
 if __name__ == "__main__":

@@ -45,5 +45,11 @@ class scraper(object):
                     else:
                         result.append("")
             results.append(result)
-        return results
+        return self._padListsToEqualLength(results)
         
+    def _padListsToEqualLength(self,listoflists):
+        maxlen = max([len(x) for x in listoflists])
+        for x in range(0,len(listoflists)):
+            while (len(listoflists[x])<maxlen):
+                listoflists[x].append("-")
+        return listoflists
