@@ -4,7 +4,7 @@ Created on 26 Apr 2013
 @author: steven
 '''
 import unittest
-from scraper2.scraper import scraper
+from scraper2.scraper import *
 from lxml import etree
 
 class Test(unittest.TestCase):
@@ -83,13 +83,21 @@ class Test(unittest.TestCase):
         scr = scraper("test",patterns,self.parser)
         results = scr.parse(fi)
         fi.close()
-        print results[0]
-        print results[1]
         assert len(results[0])==161
         assert len(results[1])==161
     
-    
+    def testPostProcessor_NOOP(self):
+        p = postprocessor()
+        assert p.process("hello world!")=="hello world!"
 
+    def testPostProcessor_Trim(self):
+        p = trimwhitespace()
+        assert p.process("  hello\t   world!\r\n")=="hello world!"
+        
+    def testPostProcessor_ToLower(self):
+        p = lowercase()
+        assert p.process("HellO WORLd!")=="hello world!"
+
+    
 if __name__ == "__main__":
-    #import sys;sys.argv = ['', 'Test.testName']
     unittest.main()
