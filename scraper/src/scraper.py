@@ -27,8 +27,9 @@ import traceback
 def getcommandlineargs():
     pp = argparse.ArgumentParser(description='Simple HTML scraper utility')
     pp.add_argument('--f',nargs='+',help='XPath query(-ies), may have more than one')
+    pp.add_argument('--x',nargs='*',help='automatically appends /text()') 
     pp.add_argument('--trim',nargs='+',help='Trim strings of whitespace including newlines and tabs')
-    pp.add_argument('--relaxed', nargs='*', default='', help='Relaxed mode, lets you parse really badly formed HTML pages')
+    pp.add_argument('--relaxed', nargs='*', default=None, help='Relaxed mode, lets you parse really badly formed HTML pages')
     args = pp.parse_args(sys.argv[1:])
     return args    
     
@@ -57,17 +58,27 @@ def checkqueriesarevalid(queries,tree):
 
 def getresults(args,tree):
     results=[]
+    extendmode = (args.x!=None)    
     for query in args.f:
         allmatching= tree.xpath(query)
         result=[]
         for x in allmatching:
-            if x.text:
-                z = x.text.encode('utf-8')
-                z = z.replace("\r\n","")
-                if (len(z)>0):
-                    result.append(z)
-                else:
-                    result.append("")
+            if extendmode:
+                if x.text:
+                    z = x.text.encode('utf-8')
+                    z = z.replace("\r\n","")
+                    if (len(z)>0):
+                        result.append(z)
+                    else:
+                        result.append("")
+            else:
+                if x:
+                    z = str(x.items()[0]).encode('utf-8')
+                    z = z.replace("\r\n","")
+                    if (len(z)>0):
+                        result.append(z)
+                    else:
+                        result.append("")
         results.append(result)
     return results
 

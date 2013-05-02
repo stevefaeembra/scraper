@@ -35,6 +35,31 @@ class lowercase(postprocessor):
     def process(self,stringinput):
         return stringinput.lower()
 
+
+'''
+Writer classes
+These should take a list of lists of matches, and output them somehow
+Only one per scraper
+'''
+
+class outputprocessor(object):
+    
+    def __init__(self,file_like_object):
+        self.op = file_like_object
+        
+    def write(self,list_of_results):
+        self.op.write(list_of_results)
+        
+class TSVOutput(object):
+    
+    def __init__(self,file_like_object):
+        super(TSVOutput,self).__init__(file_like_object)
+        
+    def write(self,list_of_results):
+        nrows = len(list_of_results[0])
+        for rownum in range(0, nrows):
+            print "\t".join()
+
 '''
 Scraper class
 
@@ -47,11 +72,12 @@ When you create, you need to provide the following:-
     
 class scraper(object):
     
-    def __init__(self,name,XPathpatterns,parser,postprocessors=[]):
+    def __init__(self,name,XPathpatterns,parser,postprocessors=[],output=None):
         self.XPathPatterns=XPathpatterns
         self.name=name
         self.parser=parser
         self.postprocessors=postprocessors
+        self.op=output
         self._checkPatterns()
         
     def _checkPatterns(self):
