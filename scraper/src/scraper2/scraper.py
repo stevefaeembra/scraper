@@ -1,3 +1,4 @@
+# encoding: utf-8
 '''
  Copyright 2013 Steven Kay
 
@@ -14,13 +15,20 @@
    limitations under the License.
 '''
 
+
 from lxml import etree
 from io import BytesIO
 import re
 import sys
+import os
+from lxml import etree
+from argparse import ArgumentParser
+from argparse import RawDescriptionHelpFormatter
+from lxml.html import *
+from xml.etree.ElementTree import *
 
 '''
-simple pluggable postprocessor classes
+Simple pluggable postprocessor classes
 '''
 
 class postprocessor(object):
@@ -92,7 +100,7 @@ When you create, you need to provide the following:-
 - an instance of an XML parser
 - [optional] a list of postprocessor instances. These will be called in order provided on the text of each match.
 - an output (file-like object), defaults to sys.stdout
-- [option]
+- [optional] an instance of outputprocessor
 '''
     
 class scraper(object):
@@ -164,3 +172,71 @@ class scraper(object):
             while (len(listoflists[x])<maxlen):
                 listoflists[x].append("-")
         return listoflists
+    
+    
+class CLIError(Exception):
+    '''Generic exception to raise and log different fatal errors.'''
+    def __init__(self, msg):
+        super(CLIError).__init__(type(self))
+        self.msg = "Error: %s" % msg
+    def __str__(self):
+        return self.msg
+    def __unicode__(self):
+        return self.msg
+
+def getparserinstancefor(type_name):
+    typename=type_name[0].lower()
+    if typename=="html":
+        return etree.HTMLParser()
+    if typename=="xml":
+        return etree.XMLParser()
+    raise CLIError("Parser option should be one of html,xml")
+    
+
+def getformatinstancefor(format_name):
+    if not format_name:
+        raise CLIError("Format option not supplied")
+    format=format_name[0].lower()
+    if format=="tsv":
+        return TSVOutput(sys.stdout)
+    raise CLIError("Format option not recognised")
+
+def main(argv=None): # IGNORE:C0111
+    '''Command line options.'''
+    
+    if argv is None:
+        argv = sys.argv
+    else:
+        sys.argv.extend(argv)
+
+    try:
+        parser = ArgumentParser(description="scraper.py", formatter_class=RawDescriptionHelpFormatter)
+        parser.add_argument("-m", "--match", dest="patterns", action="store", nargs="+", help="One or more XPath expressions to match")
+        parser.add_argument("-t", "--text", dest="textmode", action="store_true", help="effect is to implicitly append /text()")
+        parser.add_argument("-p", "--parser", dest="parser", action="store", nargs=1, help="parser to use, one of {html,xml,html5}")
+        parser.add_argument("-f", "--format", dest="format", action="store", nargs=1, help="output format to use, one of {tsv,csv}")
+        
+        args = parser.parse_args()
+        
+        patterns = args.patterns
+        if not patterns:
+            raise CLIError("You need to provide one or more XPath expressions using -m")
+        textmode = args.textmode
+        parser = getparserinstancefor(args.parser)
+        formatter = getformatinstancefor(args.format)
+        
+        scr = scraper("Untitled",patterns,parser,postprocessors=[],output=sys.stdout,writer=formatter)
+        scr.parse(sys.stdin)
+        return 0
+    
+    except KeyboardInterrupt:
+        return 0
+    
+    except Exception, e:
+        indent = len("scraper.py") * " "
+        sys.stderr.write("scraper.py" + ": " + repr(e) + "\n")
+        sys.stderr.write(indent + "  for help use --help")
+        return 2
+
+if __name__ == "__main__":
+    sys.exit(main())
