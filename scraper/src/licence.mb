@@ -19,7 +19,7 @@ Simple Scraper
  
    Requires lxml to be installed (http://lxml.de/)
 
- Copyright 2013 Steven Kay
+ Copyright 2013 Steven Kay 
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
