@@ -117,7 +117,7 @@ class Test(unittest.TestCase):
         scr = scraper("test",patterns,self.parser,[lowercase()],writer=opwriter)
         results = scr.parse(fi)
         assert len(results[0])==161
-        assert len(output.getvalue())==2849
+        assert len(output.getvalue())==3196
     
 if __name__ == "__main__":
     unittest.main()

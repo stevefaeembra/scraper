@@ -95,7 +95,7 @@ class NullOutput(outputprocessor):
         super(NullOutput,self).__init__(file_like_object)
         
     def write(self,listofresults):
-        print listofresults
+        pass
     
 class TSVOutput(outputprocessor):
     
