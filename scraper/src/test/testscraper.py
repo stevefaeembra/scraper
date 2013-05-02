@@ -6,6 +6,7 @@ Created on 26 Apr 2013
 import unittest
 from scraper2.scraper import *
 from lxml import etree
+import StringIO
 
 class Test(unittest.TestCase):
 
@@ -108,6 +109,15 @@ class Test(unittest.TestCase):
                 assert x==x.lower()
         fi.close()
         
+    def testWriter(self):
+        fi = open("./bbcnews.html")
+        patterns = ["//a","//h1"]
+        output = StringIO.StringIO()
+        opwriter=TSVOutput(output)
+        scr = scraper("test",patterns,self.parser,[lowercase()],writer=opwriter)
+        results = scr.parse(fi)
+        assert len(results[0])==161
+        assert len(output.getvalue())==2849
     
 if __name__ == "__main__":
     unittest.main()
