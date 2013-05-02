@@ -1,5 +1,26 @@
 # encoding: utf-8
 '''
+Simple Scraper
+
+    A trivial HTML/XML scraper written in Python, designed to be used as a shell script -
+    reads in from stdin, writes to stdout.
+
+    You provide one (or more) XPath expressions. 
+
+    If more than one expression is supplied, it is assumed that you are attempting to 
+    scrape rows from a table, and the results go into a list of lists, with values held
+    column-wise. 
+    
+    If any of these column lists are shorter than the longest column list, 
+    they are padded out. If this happens, you should not assume that the Nth entry in each
+    list correspond to a single coherent row. If you use the optional -w/--warn option, it
+    will not pad the shorter lists and will throw an exception. This should be used if you need 
+    to make sure that the CSV/TSV output is consistent
+
+ Prerequisites
+ 
+   Requires lxml to be installed (http://lxml.de/)
+
  Copyright 2013 Steven Kay
 
    Licensed under the Apache License, Version 2.0 (the "License");
@@ -105,12 +126,13 @@ When you create, you need to provide the following:-
     
 class scraper(object):
     
-    def __init__(self,name,XPathpatterns,parser,postprocessors=[],output=sys.stdout,writer=None):
+    def __init__(self,name,XPathpatterns,parser,postprocessors=[],output=sys.stdout,writer=None,padwarning=False):
         self.XPathPatterns=XPathpatterns
         self.name=name
         self.parser=parser
         self.postprocessors=postprocessors
         self.op=output
+        self.givepadwarning=padwarning
         if not writer:
             self.writer=NullOutput(self.op)
         else:
@@ -154,6 +176,8 @@ class scraper(object):
                         result.append("")
             results.append(result)
         processedresults = self._padListsToEqualLength(results)
+        if self.padwarning and self.givepadwarning:
+            raise Exception("Padding warning - expressions dont result in consistent numbers of matches")
         self.writer.write(processedresults)
         return processedresults
     
@@ -170,6 +194,7 @@ class scraper(object):
         maxlen = max([len(x) for x in listoflists])
         for x in range(0,len(listoflists)):
             while (len(listoflists[x])<maxlen):
+                self.padwarning=True
                 listoflists[x].append("-")
         return listoflists
     
@@ -215,17 +240,19 @@ def main(argv=None): # IGNORE:C0111
         parser.add_argument("-t", "--text", dest="textmode", action="store_true", help="effect is to implicitly append /text()")
         parser.add_argument("-p", "--parser", dest="parser", action="store", nargs=1, help="parser to use, one of {html,xml,html5}")
         parser.add_argument("-f", "--format", dest="format", action="store", nargs=1, help="output format to use, one of {tsv,csv}")
+        parser.add_argument("-w", "--warn", dest="padwarning", action="store_false", help="throw exception if the number of matches for each pattern is not consistent")
         
         args = parser.parse_args()
         
         patterns = args.patterns
         if not patterns:
             raise CLIError("You need to provide one or more XPath expressions using -m")
+        warning = args.padwarning
         textmode = args.textmode
         parser = getparserinstancefor(args.parser)
         formatter = getformatinstancefor(args.format)
         
-        scr = scraper("Untitled",patterns,parser,postprocessors=[],output=sys.stdout,writer=formatter)
+        scr = scraper("Untitled",patterns,parser,postprocessors=[],output=sys.stdout,writer=formatter,padwarning=warning)
         scr.parse(sys.stdin)
         return 0
     
@@ -235,7 +262,7 @@ def main(argv=None): # IGNORE:C0111
     except Exception, e:
         indent = len("scraper.py") * " "
         sys.stderr.write("scraper.py" + ": " + repr(e) + "\n")
-        sys.stderr.write(indent + "  for help use --help")
+        sys.stderr.write(indent + "  for help use --help\n")
         return 2
 
 if __name__ == "__main__":
