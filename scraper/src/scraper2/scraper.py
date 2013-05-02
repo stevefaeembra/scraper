@@ -1,8 +1,17 @@
 '''
-Simple XPath-based HTML/XML scraper utility class
-Created on 26 Apr 2013
+ Copyright 2013 Steven Kay
 
-@author: steven
+   Licensed under the Apache License, Version 2.0 (the "License");
+   you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at
+
+     http://www.apache.org/licenses/LICENSE-2.0
+
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License.
 '''
 
 from lxml import etree
@@ -57,7 +66,7 @@ class NullOutput(outputprocessor):
         super(NullOutput,self).__init__(file_like_object)
         
     def write(self,listofresults):
-        pass
+        print listofresults
     
 class TSVOutput(outputprocessor):
     
@@ -69,7 +78,7 @@ class TSVOutput(outputprocessor):
         nrows = len(list_of_results[0])
         for rownum in range(0, nrows-1):
             row=[]
-            for colnum in range(0,ncols-1):
+            for colnum in range(0,ncols):
                 row.append(list_of_results[colnum][rownum])
             rowtext = "%s\n" % ("\t".join(row))
             self.op.write(rowtext)
@@ -130,6 +139,7 @@ class scraper(object):
                 if x.text:
                     z = x.text.encode('utf-8')
                     z = self._runThroughPostProcessing(z)
+                    #print "Found [%s]" % z
                     if (len(z)>0):
                         result.append(z)
                     else:
