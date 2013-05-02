@@ -47,7 +47,7 @@ class Test(unittest.TestCase):
             assert ex.message=="No XPath expressions passed to scraper"
 
     def testAmazonBestSellers(self):
-        fi = open("./amazonbestsellers.html")
+        fi = open("./testfiles/amazonbestsellers.html")
         patterns = ["//a"]
         scr = scraper("test",patterns,self.parser)
         results = scr.parse(fi)
@@ -56,7 +56,7 @@ class Test(unittest.TestCase):
         assert len(results[0])==256
         
     def testBBCNewsHeadlines_1(self):
-        fi = open("./bbcnews.html")
+        fi = open("./testfiles/bbcnews.html")
         patterns = ["//a"]
         scr = scraper("test",patterns,self.parser)
         results = scr.parse(fi)
@@ -79,7 +79,7 @@ class Test(unittest.TestCase):
         assert result==expect
         
     def testPaddingListsToEqualLength(self):
-        fi = open("./bbcnews.html")
+        fi = open("./testfiles/bbcnews.html")
         patterns = ["//a","//h1"]
         scr = scraper("test",patterns,self.parser)
         results = scr.parse(fi)
@@ -100,7 +100,7 @@ class Test(unittest.TestCase):
         assert p.process("HellO WORLd!")=="hello world!"
 
     def testPostProcessorExample(self):
-        fi = open("./bbcnews.html")
+        fi = open("./testfiles/bbcnews.html")
         patterns = ["//a","//h1"]
         scr = scraper("test",patterns,self.parser,[lowercase()])
         results = scr.parse(fi)
@@ -110,7 +110,7 @@ class Test(unittest.TestCase):
         fi.close()
         
     def testWriter(self):
-        fi = open("./bbcnews.html")
+        fi = open("./testfiles/bbcnews.html")
         patterns = ["//a","//h1"]
         output = StringIO.StringIO()
         opwriter=TSVOutput(output)
