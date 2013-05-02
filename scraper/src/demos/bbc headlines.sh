@@ -1,1 +1,1 @@
-curl -s http://www.bbc.co.uk/news/ | ./scrape --f ".//a[@class='headline-anchor']" | less
+curl -s http://www.bbc.co.uk/news/ | python ../scraper2/scraper.py -phtML --m ".//a[@class='headline-anchor']" -fTSV -t | sort | less

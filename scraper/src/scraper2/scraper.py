@@ -132,7 +132,11 @@ class scraper(object):
         self.parser=parser
         self.postprocessors=postprocessors
         self.op=output
-        self.givepadwarning=padwarning
+        self.padwarning=False
+        if not padwarning:
+            self.givepadwarning=False
+        else:
+            self.givepadwarning=padwarning
         if not writer:
             self.writer=NullOutput(self.op)
         else:
@@ -240,19 +244,19 @@ def main(argv=None): # IGNORE:C0111
         parser.add_argument("-t", "--text", dest="textmode", action="store_true", help="effect is to implicitly append /text()")
         parser.add_argument("-p", "--parser", dest="parser", action="store", nargs=1, help="parser to use, one of {html,xml,html5}")
         parser.add_argument("-f", "--format", dest="format", action="store", nargs=1, help="output format to use, one of {tsv,csv}")
-        parser.add_argument("-w", "--warn", dest="padwarning", action="store_false", help="throw exception if the number of matches for each pattern is not consistent")
+        parser.add_argument("-w", "--warning", dest="padwarning", action="store_true", help="throw exception if the number of matches for each pattern varies")
         
         args = parser.parse_args()
         
         patterns = args.patterns
         if not patterns:
             raise CLIError("You need to provide one or more XPath expressions using -m")
-        warning = args.padwarning
+        givepadwarning = args.padwarning
         textmode = args.textmode
         parser = getparserinstancefor(args.parser)
         formatter = getformatinstancefor(args.format)
         
-        scr = scraper("Untitled",patterns,parser,postprocessors=[],output=sys.stdout,writer=formatter,padwarning=warning)
+        scr = scraper("Untitled",patterns,parser,postprocessors=[],output=sys.stdout,writer=formatter,padwarning=givepadwarning)
         scr.parse(sys.stdin)
         return 0
     
@@ -260,9 +264,8 @@ def main(argv=None): # IGNORE:C0111
         return 0
     
     except Exception, e:
-        indent = len("scraper.py") * " "
-        sys.stderr.write("scraper.py" + ": " + repr(e) + "\n")
-        sys.stderr.write(indent + "  for help use --help\n")
+        sys.stderr.write(repr(e.message) + "\n")
+        sys.stderr.write("for help use --help\n")
         return 2
 
 if __name__ == "__main__":
