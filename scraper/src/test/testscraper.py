@@ -47,21 +47,21 @@ class Test(unittest.TestCase):
             assert ex.message=="No XPath expressions passed to scraper"
 
     def testAmazonBestSellers(self):
-        fi = open("./testfiles/amazonbestsellers.html")
+        fi = open("./test.html")
         patterns = ["//a"]
         scr = scraper("test",patterns,self.parser)
         results = scr.parse(fi)
         fi.close()
         assert len(results)==1 # one column
-        assert len(results[0])==256
+        assert len(results[0])==8
         
     def testBBCNewsHeadlines_1(self):
-        fi = open("./testfiles/bbcnews.html")
+        fi = open("./test.html")
         patterns = ["//a"]
         scr = scraper("test",patterns,self.parser)
         results = scr.parse(fi)
         fi.close()
-        assert len(results[0])==161
+        assert len(results[0])==8
         
     def testPaddingListsToEqualLengthOneList(self):
         patterns = ["//a"]
@@ -79,13 +79,13 @@ class Test(unittest.TestCase):
         assert result==expect
         
     def testPaddingListsToEqualLength(self):
-        fi = open("./testfiles/bbcnews.html")
+        fi = open("./test.html")
         patterns = ["//a","//h1"]
         scr = scraper("test",patterns,self.parser)
         results = scr.parse(fi)
         fi.close()
-        assert len(results[0])==161
-        assert len(results[1])==161
+        assert len(results[0])==8
+        assert len(results[1])==8
     
     def testPostProcessor_NOOP(self):
         p = postprocessor()
@@ -100,7 +100,7 @@ class Test(unittest.TestCase):
         assert p.process("HellO WORLd!")=="hello world!"
 
     def testPostProcessorExample(self):
-        fi = open("./testfiles/bbcnews.html")
+        fi = open("./test.html")
         patterns = ["//a","//h1"]
         scr = scraper("test",patterns,self.parser,[lowercase()])
         results = scr.parse(fi)
@@ -110,14 +110,14 @@ class Test(unittest.TestCase):
         fi.close()
         
     def testWriter(self):
-        fi = open("./testfiles/bbcnews.html")
+        fi = open("./test.html")
         patterns = ["//a","//h1"]
         output = StringIO.StringIO()
         opwriter=TSVOutput(output)
         scr = scraper("test",patterns,self.parser,[lowercase()],writer=opwriter)
         results = scr.parse(fi)
-        assert len(results[0])==161
-        assert len(output.getvalue())==3196
+        assert len(results[0])==8
+        assert len(output.getvalue())==131
     
 if __name__ == "__main__":
     unittest.main()
